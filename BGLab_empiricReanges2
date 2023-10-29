@@ -1,0 +1,133 @@
+import pandas as pd
+import numpy as np
+import pyodbc
+import matplotlib.pyplot as plt 
+
+
+thisAnalyte = "Alanine"
+thisTable = "[Canine Amino Acids Plasma Results]"
+conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=L:\Database\LabInfoSystem\BGLab_be.accdb;') 
+cursor = conn.cursor()
+sql_query = pd.read_sql_query ('SELECT '+thisAnalyte+'  FROM '+thisTable+';', conn)
+
+print('Column names:')
+for col in sql_query.columns:
+    print(col)
+
+print('sql_query gives Alanine, measure:')
+#print(sql_query)
+
+print('Dataframe sql_query, columns='+thisAnalyte+'.')
+df = pd.DataFrame(sql_query, columns = [thisAnalyte]) #,'Histidine'])
+
+maxi=int(df.max())
+print('Max: ')
+print(maxi)
+step=maxi/100
+midpts=[]
+for i in range(1,101):
+    midpts.append(step*i) # [i]=step*i
+#print('midpts:')
+#print(midpts)
+print('midpts len:')
+print(len(midpts))
+
+##df= pd.DataFrame({'number': np.random.randint(1, 100, 10)})
+#binLabels=['1-100', '100-200', '200-300','400-500', '500-600', '600-700', '700-800', '>800']
+binLabels=[]
+for i in range(0,99):
+    binLabels.append(str(midpts[i]))
+
+#df['bins'] = pd.cut(x=df[thisAnalyte], bins=[1, 100, 200, 300, 400, 500, 600, 800, 900], labels=binLabels)
+df['bins'] = pd.cut(x=df[thisAnalyte], bins=midpts, labels=binLabels)
+
+print('Dataframe:')
+print(df)
+
+#print('bins:')
+#print(df['bins'].to_numpy())
+###dfSorted=df['bins'].to_numpy().sort()
+#print(dfSorted)
+
+print("Bin counts: ") 
+binCounts=df['bins'].value_counts(sort=False)
+binCounts.columns =['bin', 'Count']
+#binCounts.sort_values(['bin'])
+print(binCounts)
+
+plt.figure(1)
+plt.xlabel('x-axis') 
+plt.ylabel('y-axis') 
+plt.title('binCounts') 
+numpycounts=binCounts.to_numpy()
+#plt.plot(binCounts,marker='x')
+plt.plot(numpycounts,marker='x')
+
+
+print('Total measures:')
+totalMeasures=0
+for x in df['bins'].value_counts():
+    totalMeasures+=x
+print(totalMeasures)
+
+cumulativeSum=df['bins'].value_counts(sort=False).cumsum()
+print('cumulativeSum:')
+numpySum=cumulativeSum.to_numpy()
+print(cumulativeSum)
+print(numpySum)
+
+plt.figure(2)
+plt.xlabel('x-axis') 
+plt.ylabel('y-axis') 
+plt.title('cumSum') 
+#plt.plot(cumulativeSum,marker='x')
+plt.plot(numpySum,marker='x')
+
+
+yfrac = [yval / totalMeasures for yval in cumulativeSum] 
+print('yfrac:')
+print(yfrac)
+#yfracplt=yfrac.to_numpy()
+
+plt.figure(3)
+plt.xlabel('x-axis') 
+plt.ylabel('y-axis') 
+plt.title('yfrac') 
+#plt.plot(cumulativeSum,marker='x')
+plt.plot(midpts[:98], yfrac[:98],marker='x')
+
+print('midpts:')
+print(midpts)
+print('yfrac:')
+print(yfrac)
+
+raise ValueError()
+
+
+
+
+
+
+
+
+
+
+
+print('newlist:')
+print(newlist)
+
+#sort
+print('cumulativeSum:')
+print(cumulativeSum)
+
+plt.xlabel('x-axis') 
+plt.ylabel('y-axis') 
+plt.title('CumSum') 
+plt.plot(cumulativeSum,marker='x')
+
+raise ValueError()
+
+
+
+minius3SD=0
+
