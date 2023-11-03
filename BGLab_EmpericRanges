@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 #def func(x, a, x0, sigma): 
 #    return a*np.exp(-(x-x0)**2/(2*sigma**2)) 
 
-thisTest = "Organic Acids Urine"
-theseAnalytes = ["Lactic", "Adipic"]
-#theseAnalytes = ["Proline", "Serine", "Glycine", "Alanine", "Lysine", "Methionine"]
+thisTest = "Amino Acids Plasma"
+#theseAnalytes = ["Lactic", "Adipic"]
+theseAnalytes = ["Proline", "Serine", "Glycine", "Alanine", "Lysine", "Methionine"]
 nGraph=0
 for thisAnalyte in theseAnalytes:
     cutoff_factor=0.95
@@ -119,99 +119,44 @@ for thisAnalyte in theseAnalytes:
     plus2SD=0.975
     plus3SD=0.9985
     
-    def find_cutoff(centile, CumulativeSums, MaxSum):
+    def find_cutoff(centile, CumulativeSums, MaxSum, xvals):
         i=0
+        print('centile; '+str(centile))
         while CumulativeSums[i]<centile:
             i+=1
         if i==0:
             return 0
         else:
+            #return xvals[i]
+            thisSum = CumulativeSums[i]
+            previousSum = CumulativeSums[i-1]
+            fractionAbove = (centile-previousSum)/(thisSum-previousSum)
+            thisConc = xvals[i]
+            previousConc = xvals[i-1]
+            interpolatedConc = previousConc + fractionAbove*(thisConc-previousConc)
+            return interpolatedConc
+            '''
             thisOne = CumulativeSums[i]
+            print('first >centile: '+str(thisOne))
             previousOne = CumulativeSums[i-1]
-            interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
-            return interpolatedSum*maxi
+            print('previous <=centile: '+str(previousOne))
+            interpolatedSum = previousOne + ((thisOne-centile)/(thisOne-previousOne))*(thisOne-previousOne) 
+            interpolatedSum = previousOne + ((centile-previousOne)) 
+            print('Interpolated sum: '+str(interpolatedSum))
+            return interpolatedSum*MaxSum
+            '''
             
-    ConcMinus3SD = find_cutoff(minus3SD,numpySum, maxi)
-    '''
-    i=0
-    while numpySum[i]<minus3SD:
-        i+=1
-    if i==0:
-        ConcMinus3SD = 0
-    else:
-        thisOne = numpySum[i]
-        previousOne = numpySum[i-1]
-        interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
-        ConcMinus3SD = interpolatedSum*maxi
-    '''
+    ConcMinus3SD = find_cutoff(minus3SD,numpySum, maxi, xvals)
     print("minus3SD: " + str(ConcMinus3SD) )
-    '''
-    i=0
-    while numpySum[i]<minus2SD:
-        i+=1
-    if i==0:
-        ConcMinus2SD = 0
-    else:
-        thisOne = numpySum[i]
-        previousOne = numpySum[i-1]
-        interpolatedSum = previousOne + ((thisOne-minus2SD)/(thisOne-previousOne))*(thisOne-previousOne) 
-        ConcMinus2SD = interpolatedSum*maxi
-    '''
-    ConcMinus2SD = find_cutoff(minus2SD, numpySum, maxi)
-    print("minus2SD: " + str(ConcMinus2SD)) # + ", not " + str(numpySum[i]*maxi) + '?')
-    #print("the CPD at point " + str(i) + " is " + str(numpySum[i]) + ", equivalent to a concentration of " + str(numpySum[i]*maxi))
-    '''
-    i=0
-    while numpySum[i]<minus1SD:
-        i+=1
-    #ConcMinus1SD = numpySum[i]*maxi
-    if i==0:
-        ConcMinus1SD = 0
-    else:
-        thisOne = numpySum[i]
-        previousOne = numpySum[i-1]
-        interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
-        ConcMinus1SD = interpolatedSum*maxi
-    '''
-    ConcMinus1SD = find_cutoff(minus1SD, numpySum, maxi)
+    ConcMinus2SD = find_cutoff(minus2SD, numpySum, maxi, xvals)
+    print("minus2SD: " + str(ConcMinus2SD))
+    ConcMinus1SD = find_cutoff(minus1SD, numpySum, maxi, xvals)
     print("minus1SD: " + str(ConcMinus1SD) )
-    '''
-    i=0
-    while numpySum[i]<plus1SD:
-        i+=1
-    #ConcPlus1SD = numpySum[i]*maxi
-    '''
-    ConcPlus1SD = find_cutoff(plus1SD, numpySum, maxi)
+    ConcPlus1SD = find_cutoff(plus1SD, numpySum, maxi, xvals)
     print("plus1SD: " + str(ConcPlus1SD) )
-    '''
-    i=0
-    while numpySum[i]<plus2SD:
-        i+=1
-    #ConcPlus2SD = numpySum[i]*maxi
-    if i==0:
-        ConcPluus2SD = 0
-    else:
-        thisOne = numpySum[i]
-        previousOne = numpySum[i-1]
-        interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
-        ConcPlus2SD = interpolatedSum*maxi
-    '''
-    ConcPlus2SD = find_cutoff(plus2SD, numpySum, maxi)
+    ConcPlus2SD = find_cutoff(plus2SD, numpySum, maxi, xvals)
     print("plus2SD: " + str(ConcPlus2SD) )
-    '''
-    i=0
-    while numpySum[i]<plus3SD:
-        i+=1
-    #ConcPlus3SD = numpySum[i]*maxi
-    if i==0:
-        ConcPluus3SD = 0
-    else:
-        thisOne = numpySum[i]
-        previousOne = numpySum[i-1]
-        interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
-        ConcPlus3SD = interpolatedSum*maxi
-    '''
-    ConcPlus3SD = find_cutoff(plus3SD, numpySum, maxi)
+    ConcPlus3SD = find_cutoff(plus3SD, numpySum, maxi, xvals)
     print("plus3SD: " + str(ConcPlus3SD) )
 
     nGraph += 1
