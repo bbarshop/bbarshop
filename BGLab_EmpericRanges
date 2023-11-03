@@ -2,88 +2,245 @@ import pandas as pd
 import numpy as np
 import pyodbc
 import matplotlib.pyplot as plt 
+#from scipy.optimize import curve_fit 
+# Create a function to model and create data 
+#def func(x, a, x0, sigma): 
+#    return a*np.exp(-(x-x0)**2/(2*sigma**2)) 
 
+thisTest = "Organic Acids Urine"
+theseAnalytes = ["Lactic", "Adipic"]
+#theseAnalytes = ["Proline", "Serine", "Glycine", "Alanine", "Lysine", "Methionine"]
+nGraph=0
+for thisAnalyte in theseAnalytes:
+    cutoff_factor=0.95
+    #thisAnalyte = "Glycine"
+    print(thisAnalyte)
+    thisUpperRange = thisAnalyte+"VeryHigh"
+    thisTable = "["+thisTest+" Results]"
+    thisNormalRanges = "["+thisTest+" Normal Ranges]"
+    conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=L:\Database\LabInfoSystem\BGLab_be.accdb;') 
+    cursor = conn.cursor()
+    #sql_query = pd.read_sql_query ('SELECT '+thisAnalyte+'  FROM '+thisTable+';', conn)
+    #print('Dataframe sql_query, columns='+thisAnalyte+'.')
+    #df = pd.DataFrame(sql_query, columns = [thisAnalyte]) #,'Histidine'])
+    #df=df.dropna()
+    #print(df)
 
-thisTable = "[Canine Amino Acids Plasma Results]"
-conn = pyodbc.connect(r'Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=L:\Database\LabInfoSystem\BGLab_be.accdb;') 
-cursor = conn.cursor()
-sql_query = pd.read_sql_query ('SELECT Alanine FROM '+thisTable+';', conn)
+    MySQL = 'SELECT '+thisUpperRange+'  FROM '+thisNormalRanges+';'
+    #print(MySQL)
+    sql_query = pd.read_sql_query (MySQL, conn)
+    df2 = pd.DataFrame(sql_query, columns = [thisUpperRange])
+    df2=df2.dropna()
+    #print(df2)
 
-print('Column names:')
-for col in sql_query.columns:
-    print(col)
+    UpperRange = df2[thisUpperRange][0]
+    print("Upper range: " + str(UpperRange))
 
-print('sql_query:')
-print(sql_query)
+    #print('Column names:')
+    #for col in sql_query.columns:
+    #    print(col)
 
-''' 
-#print (df)
-print('Column names:')
-columnNames=df.columns
-print(columnNames)
-analyteNames = columnNames[4:]
-print('Analyte names:')
-print(analyteNames)
-'''
-#analyteNames = 
+    #maxi=int(df.max())
+    #print('Max: ')
+    #print(maxi)
 
-print('Dataframe sql_query, columns=Alanine.')
-df = pd.DataFrame(sql_query, columns = ['Alanine']) #,'Histidine'])
+    MySQL = 'SELECT '+thisAnalyte+'  FROM '+thisTable+' WHERE '+thisAnalyte+'<='+str(UpperRange)+';'
+    #MySQL = 'SELECT '+thisAnalyte+'  FROM '+thisTable+';'
+    sql_query = pd.read_sql_query (MySQL, conn)
+    #print(MySQL+': ')
+    df = pd.DataFrame(sql_query, columns = [thisAnalyte]) 
+    df=df.dropna()
+    #print(df)
 
-maxi=int(df.max())
-print('Max: ')
-print(maxi)
-step=maxi/100
-midpts=[]
-for i in range(1,101):
-    midpts.append(step*i) # [i]=step*i
-print('midpts:')
-print(midpts)
-print('midpts len:')
-print(len(midpts))
+    #raise ValueError()
+    #cutoff=cutoff_factor*maxi
+    #print('cutoff:')
+    #print(cutoff)
+    #maxi=cutoff
+    maxi=UpperRange
 
-##df= pd.DataFrame({'number': np.random.randint(1, 100, 10)})
-#binLabels=['1-100', '100-200', '200-300','400-500', '500-600', '600-700', '700-800', '>800']
-binLabels=[]
-for i in range(0,99):
-    binLabels.append(str(midpts[i]))
+    step=maxi/1000
+    midpts=[]
+    for i in range(1,1001):
+        midpts.append(step*i) # [i]=step*i
+    #print('midpts:')
+    #print(midpts)
 
-#df['bins'] = pd.cut(x=df['Alanine'], bins=[1, 100, 200, 300, 400, 500, 600, 800, 900], labels=binLabels)
-df['bins'] = pd.cut(x=df['Alanine'], bins=midpts, labels=binLabels)
+    df['bins'] = pd.cut(x=df[thisAnalyte], bins=midpts) #, labels=binLabels)
+    #print('Dataframe:')
+    #print(df)
 
-print('Dataframe:')
-print(df)
+    #print("BinCounts: ") 
+    binCounts=df['bins'].value_counts(sort=False)
+    binCounts.columns =['bin', 'Count']
+    #print(binCounts)
 
-print("Categories: ") 
-print(df['bins'].value_counts()) 
+    counts=[]
+    counts=binCounts.values.tolist()
+    #print('counts:')
+    #print(counts)
 
-df2=df['bins'].value_counts()
-print()
-print(df2)
+    nGraph += 1
+    xvals = np.array(midpts[:998])
+    yvals = np.array(counts[:998])
+    plt.figure(nGraph)
+    plt.title("Histogram")
+    plt.xlabel('bins')
+    plt.ylabel('counts')
 
-#df2.sort()
-for binLabel in binLabels:
-    print(binLabel, df2[binLabel])
+    plt.plot(xvals,yvals,marker='o', label=thisAnalyte)
+    plt.legend(loc="upper right")
 
-print('binLabels:')
-print(binLabels)
+    #popt, pcov = curve_fit(func, xvals, yvals)
+    #print('A   is '+str(popt[0]))
+    #print('x0  is '+str(popt[1]))
+    #print('sig is '+str(popt[2]))
+    #print(popt)
+    #print(pcov)
+    #yfit = []
+    #for x in xvals:
+    #    yfit.append(func(x, popt[0], popt[1], popt[2]))
+    #plt.plot(xvals,yfit,marker='.', label='Gaussian')
 
-binLabelValues=[]
-for binLabel in binLabels:
-    binLabelValues.append(float(binLabel))
-print('binLabelValues:')
-print(binLabelValues)
+    cumulativeSum=df['bins'].value_counts(sort=False).cumsum()
+    #print('cumulativeSum:')
+    numpySum=cumulativeSum.to_numpy()
+    maxsum = numpySum.max()
+    #print('maxsum: '+str(maxsum))
+
+    numpySum=numpySum/maxsum
+    #print(cumulativeSum)
+    #print(numpySum)
+
+    minus3SD=0.0015
+    minus2SD=0.025
+    minus1SD=0.16
+    plus1SD=0.84
+    plus2SD=0.975
+    plus3SD=0.9985
     
-    
-plt.xlabel('x-axis') 
-plt.ylabel('y-axis') 
-plt.title('Test') 
-plt.plot(midpts[:99], df2, marker='o') 
+    def find_cutoff(centile, CumulativeSums, MaxSum):
+        i=0
+        while CumulativeSums[i]<centile:
+            i+=1
+        if i==0:
+            return 0
+        else:
+            thisOne = CumulativeSums[i]
+            previousOne = CumulativeSums[i-1]
+            interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
+            return interpolatedSum*maxi
+            
+    ConcMinus3SD = find_cutoff(minus3SD,numpySum, maxi)
+    '''
+    i=0
+    while numpySum[i]<minus3SD:
+        i+=1
+    if i==0:
+        ConcMinus3SD = 0
+    else:
+        thisOne = numpySum[i]
+        previousOne = numpySum[i-1]
+        interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
+        ConcMinus3SD = interpolatedSum*maxi
+    '''
+    print("minus3SD: " + str(ConcMinus3SD) )
+    '''
+    i=0
+    while numpySum[i]<minus2SD:
+        i+=1
+    if i==0:
+        ConcMinus2SD = 0
+    else:
+        thisOne = numpySum[i]
+        previousOne = numpySum[i-1]
+        interpolatedSum = previousOne + ((thisOne-minus2SD)/(thisOne-previousOne))*(thisOne-previousOne) 
+        ConcMinus2SD = interpolatedSum*maxi
+    '''
+    ConcMinus2SD = find_cutoff(minus2SD, numpySum, maxi)
+    print("minus2SD: " + str(ConcMinus2SD)) # + ", not " + str(numpySum[i]*maxi) + '?')
+    #print("the CPD at point " + str(i) + " is " + str(numpySum[i]) + ", equivalent to a concentration of " + str(numpySum[i]*maxi))
+    '''
+    i=0
+    while numpySum[i]<minus1SD:
+        i+=1
+    #ConcMinus1SD = numpySum[i]*maxi
+    if i==0:
+        ConcMinus1SD = 0
+    else:
+        thisOne = numpySum[i]
+        previousOne = numpySum[i-1]
+        interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
+        ConcMinus1SD = interpolatedSum*maxi
+    '''
+    ConcMinus1SD = find_cutoff(minus1SD, numpySum, maxi)
+    print("minus1SD: " + str(ConcMinus1SD) )
+    '''
+    i=0
+    while numpySum[i]<plus1SD:
+        i+=1
+    #ConcPlus1SD = numpySum[i]*maxi
+    '''
+    ConcPlus1SD = find_cutoff(plus1SD, numpySum, maxi)
+    print("plus1SD: " + str(ConcPlus1SD) )
+    '''
+    i=0
+    while numpySum[i]<plus2SD:
+        i+=1
+    #ConcPlus2SD = numpySum[i]*maxi
+    if i==0:
+        ConcPluus2SD = 0
+    else:
+        thisOne = numpySum[i]
+        previousOne = numpySum[i-1]
+        interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
+        ConcPlus2SD = interpolatedSum*maxi
+    '''
+    ConcPlus2SD = find_cutoff(plus2SD, numpySum, maxi)
+    print("plus2SD: " + str(ConcPlus2SD) )
+    '''
+    i=0
+    while numpySum[i]<plus3SD:
+        i+=1
+    #ConcPlus3SD = numpySum[i]*maxi
+    if i==0:
+        ConcPluus3SD = 0
+    else:
+        thisOne = numpySum[i]
+        previousOne = numpySum[i-1]
+        interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
+        ConcPlus3SD = interpolatedSum*maxi
+    '''
+    ConcPlus3SD = find_cutoff(plus3SD, numpySum, maxi)
+    print("plus3SD: " + str(ConcPlus3SD) )
 
-print('Bins:')
-print(df2.values.tolist())
+    nGraph += 1
+    plt.figure(nGraph)
+    plt.title('Cumulative Sum') 
+    plt.xlabel('Conc') 
+    plt.ylabel('Fractional Cumulative Sum') 
 
-x=binLabels
-y=df2.values.tolist()
-plt.plot(x,y,marker='x')
+    #plt.plot(cumulativeSum,marker='x')
+    xaxis=midpts[:999]
+    plt.plot(xaxis,numpySum,marker='x', label=thisAnalyte)
+    yMinus3SD=[]
+    yMinus2SD=[]
+    yMinus1SD=[]
+    yPlus1SD=[]
+    yPlus2SD=[]
+    yPlus3SD=[]
+    for i in range(999):
+        yMinus3SD.append(minus3SD)
+        yMinus2SD.append(minus2SD)
+        yMinus1SD.append(minus1SD)
+        yPlus1SD.append(plus1SD)
+        yPlus2SD.append(plus2SD)
+        yPlus3SD.append(plus3SD)
+    plt.plot(xaxis,yMinus3SD,marker='_', label='-3SD='+str(round(ConcMinus3SD,2)))
+    plt.plot(xaxis,yMinus2SD,marker='_', label='-2SD='+str(round(ConcMinus2SD,2)))
+    plt.plot(xaxis,yMinus1SD,marker='_', label='-1SD='+str(round(ConcMinus1SD,2)))
+    plt.plot(xaxis,yPlus1SD,marker='_', label='+1SD='+str(round(ConcPlus1SD,2)))
+    plt.plot(xaxis,yPlus2SD,marker='_', label='+2SD='+str(round(ConcPlus2SD,2)))
+    plt.plot(xaxis,yPlus3SD,marker='_', label='+3SD='+str(round(ConcPlus3SD,2)))
+    plt.legend(loc="right")
 
