@@ -135,17 +135,7 @@ for thisAnalyte in theseAnalytes:
             previousConc = xvals[i-1]
             interpolatedConc = previousConc + fractionAbove*(thisConc-previousConc)
             return interpolatedConc
-            '''
-            thisOne = CumulativeSums[i]
-            print('first >centile: '+str(thisOne))
-            previousOne = CumulativeSums[i-1]
-            print('previous <=centile: '+str(previousOne))
-            interpolatedSum = previousOne + ((thisOne-centile)/(thisOne-previousOne))*(thisOne-previousOne) 
-            interpolatedSum = previousOne + ((centile-previousOne)) 
-            print('Interpolated sum: '+str(interpolatedSum))
-            return interpolatedSum*MaxSum
-            '''
-            
+           
     ConcMinus3SD = find_cutoff(minus3SD,numpySum, maxi, xvals)
     print("minus3SD: " + str(ConcMinus3SD) )
     ConcMinus2SD = find_cutoff(minus2SD, numpySum, maxi, xvals)
