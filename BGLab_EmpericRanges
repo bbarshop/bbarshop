@@ -2,17 +2,60 @@ import pandas as pd
 import numpy as np
 import pyodbc
 import matplotlib.pyplot as plt 
-from scipy.optimize import curve_fit 
+#from scipy.optimize import curve_fit 
 # Create a function to model and create data 
-def func(x, a, x0, sigma): 
-    return a*np.exp(-(x-x0)**2/(2*sigma**2)) 
+#def func(x, a, x0, sigma): 
+#    return a*np.exp(-(x-x0)**2/(2*sigma**2)) 
+
+'''
+thisTest = "Organic Acids Urine"
+#theseAnalytes = ["Lactic", "Adipic"]
+theseAnalytes = ['LACTIC', 'GLYCOLIC', '2OH_BUTYRIC', '3OH_PROPIONIC', '3OH_BUTYRIC', '3OH_ISOBUTYRIC', '2OH_ISOVALERIC', '2ME_3OH_BUTYRIC']
+#theseAnalytes = ['3OH_ISOVALERIC', '2ETHYL_3OHPROP', '3OH_VALERIC', '2OH_ISOCAPROIC', '20H_3ME_VALERIC', 'BENZOIC', 'OCTANOIC', 'ETHYLMALONIC']
+#theseAnalytes = ['PHENYLACETIC', 'SUCCINIC', 'METHYL_SUCCINIC', 'GLYCERIC', 'URACIL', 'FUMARIC', '5OH_HEXANOIC', 'GLUTARIC']
+#theseAnalytes = ['METHYLMALONIC', 'PROPIONYLGLYCINE', '3METHYLGLUTARIC', 'GLYOXYLIC', 'MALIC', 'ADIPIC', 'PYRUVIC', 'ISOVALERYL_GLY']
+#theseAnalytes = ['5OXO_PROLINE', 'MEVALONIC', 'TIGLYL_GLYCINE', '2OXO_ISOVALERIC', '3ME_CROTONYL_GLY', '2OH_GLUTARIC', '3OH_GLUTARIC', 'PHENYL_LACTIC']
+#theseAnalytes = ['ACETO_ACETIC', '3OH_3ME_GLUTARIC', '2OXO_3ME_VALERIC', '2OXO_ISOCAPROIC', '4OH_PHENYLACETIC', 'HEXANOYL_GLYCINE', '2OH_ADIPIC']
+#theseAnalytes = ['OCTENEDIOIC', '3OH_ADIPIC', 'SUBERIC', 'ACONITIC', 'GLUTACONIC', 'OROTIC', '3ME_GLUTACONIC', 'HOMOVANILLIC']
+#theseAnalytes = ['AZELAIC', 'ISOCITRIC', 'CITRIC', 'HIPPURIC', 'METHYL_CITRIC', 'DECENEDIOIC', '3MEO_4OHMANDELIC', 'SEBACIC']
+#theseAnalytes = ['DECADIENEDIOIC', '4OHPHENYL_LACTIC', '2OXO_GLUTARIC', 'PHENYL_PROP_GLY', 'PHENYL_PYRUVIC', '2OXO_ADIPIC', 'OH_DECANEDIOIC', 'DODECANEDIOIC']
+#theseAnalytes = ['SUBERYL_GLYCINE', '4OH_PHENYLPYRUVIC', 'SUCCINYL_ACETONE', 'ISOBUTYRYL_GLYCINE']
+##badAnalytes = ['N_ACETYLTYROSINE','5OH_INDOLEACETIC',  ]
+
+'''
 
 thisTest = "Amino Acids Plasma"
-theseAnalytes = ["Serine", "Glycine", "Alanine", "Lysine", "Methionine"]
+thisTest = "Canine Amino Acids Plasma"
+theseAnalytes = ['Phosphoserine', 'Taurine', 'PEthanolamine', 'Aspartate', 'Hydroxyproline', 'Threonine', 'Serine', 'Asparagine']
+#theseAnalytes = ['Glutamate', 'Glutamine', 'Proline', 'Glycine', 'Alanine', 'Citrulline', 'AlphaAminobutyric', 'Valine']
+#theseAnalytes = ['Halfcystine', 'Methionine', 'Isoleucine', 'Leucine', 'Tyrosine', 'Phenylalanine', 'Ornithine']
+#theseAnalytes = ['Lysine', 'Methylhistidine1', 'Histidine', 'Methylhistidine3', 'Arginine', 'Ethanolamine', 'Tryptophan', 'BetaAminoisobutyric']
+##theseAnalytes = ['Cystathionine', 'Sarcosine', 'Anserine', 'Hydroxylysine', 'AlphaAminoadipic', 'Carnosine', 'BetaAlanine', 'GammaAminobutyric']
+#theseAnalytes = ['Cystathionine', 'Hydroxylysine', 'BetaAlanine']
+##BadAnalytes = [ 'Homocystine', 'Sarcosine', 'Anserine', 'AlphaAminoadipic', 'Carnosine', 'BetaAlanine', 'GammaAminobutyric', 'Alloisoleucine', 'Argininosuccinic', 'Homocitrulline']
+
+thisTest = "Amino Acids CSF"
+theseAnalytes = ["Taurine","Aspartate","Threonine","Serine","Asparagine","Glutamate","Glutamine","Proline",
+                 "Glycine","Alanine","Valine","Leucine","Methionine","Isoleucine","Tyrosine","Phenylalanine",
+                 "GammaAminobutyric","Lysine","Histidine","Tryptophan","Arginine"]
+theseAnalytes = ["Threonine","Serine","Glutamate","Glutamine",
+                 "Glycine","Alanine","Valine","Leucine","Methionine","Isoleucine","Tyrosine","Phenylalanine"]
+
+theseAnalytes = ["Lysine","Histidine","Arginine"]
+theseAnalytes = ["Glycine","Alanine","Valine","Leucine","Methionine","Isoleucine","Tyrosine","Phenylalanine"]
+theseAnalytes = ["Phenylalanine"]
+theseAnalytes = ["Taurine","Aspartate","Threonine","Serine"]
+theseAnalytes = ["Asparagine","Glutamate","Glutamine","Proline"]
+theseAnalytes = ["Proline","Tryptophan"]
+theseAnalytes = ["Lysine", "Histidine","Tryptophan","Arginine"]
+theseAnalytes = ["Taurine"]
+
+
 nGraph=0
 for thisAnalyte in theseAnalytes:
     cutoff_factor=0.95
     #thisAnalyte = "Glycine"
+    print()
     print(thisAnalyte)
     thisUpperRange = thisAnalyte+"VeryHigh"
     thisTable = "["+thisTest+" Results]"
@@ -33,6 +76,8 @@ for thisAnalyte in theseAnalytes:
     #print(df2)
 
     UpperRange = df2[thisUpperRange][0]
+    UpperRange = max(UpperRange, 50)
+    
     print("Upper range: " + str(UpperRange))
 
     #print('Column names:')
@@ -50,6 +95,8 @@ for thisAnalyte in theseAnalytes:
     df = pd.DataFrame(sql_query, columns = [thisAnalyte]) 
     df=df.dropna()
     #print(df)
+    NumberOfMeasurements = len(df)
+    print('Number of measurements: '+ str(NumberOfMeasurements))
 
     #raise ValueError()
     #cutoff=cutoff_factor*maxi
@@ -60,19 +107,19 @@ for thisAnalyte in theseAnalytes:
 
     step=maxi/1000
     midpts=[]
-    for i in range(1,1001):
+    for i in range (-1,999): #(0,1000): #(1,1001): #(0,999): #
         midpts.append(step*i) # [i]=step*i
     #print('midpts:')
     #print(midpts)
 
     df['bins'] = pd.cut(x=df[thisAnalyte], bins=midpts) #, labels=binLabels)
-
     #print('Dataframe:')
     #print(df)
 
     #print("BinCounts: ") 
     binCounts=df['bins'].value_counts(sort=False)
     binCounts.columns =['bin', 'Count']
+    #print('binCounts:')
     #print(binCounts)
 
     counts=[]
@@ -81,14 +128,15 @@ for thisAnalyte in theseAnalytes:
     #print(counts)
 
     nGraph += 1
-    xvals = np.array(midpts[:998])
-    yvals = np.array(counts[:998])
-    plt.title("Histogram")
+    xvals = np.array(midpts[:999])
+    yvals = np.array(counts[:999])
     plt.figure(nGraph)
+    include_title_plot1 = False
+    if include_title_plot1:
+        plt.title("Histogram")
     plt.xlabel('bins')
     plt.ylabel('counts')
 
-    #plt.plot(midpts[1:99],counts[1:99],marker='o')
     plt.plot(xvals,yvals,marker='o', label=thisAnalyte)
     plt.legend(loc="upper right")
 
@@ -107,9 +155,11 @@ for thisAnalyte in theseAnalytes:
     #print('cumulativeSum:')
     numpySum=cumulativeSum.to_numpy()
     maxsum = numpySum.max()
-    #print('maxsum: '+str(maxsum))
+    ##print('maxsum: '+str(maxsum))
 
     numpySum=numpySum/maxsum
+    cumulativeFraction = cumulativeSum/cumulativeSum.max()
+    
     #print(cumulativeSum)
     #print(numpySum)
 
@@ -119,48 +169,58 @@ for thisAnalyte in theseAnalytes:
     plus1SD=0.84
     plus2SD=0.975
     plus3SD=0.9985
-    i=0
-    while numpySum[i]<minus3SD:
-        i+=1
-    thisOne = numpySum[i]
-    previousOne = numpySum[i-1]
-    interpolatedSum = previousOne + ((thisOne-minus3SD)/(thisOne-previousOne))*(thisOne-previousOne) 
-    ConcMinus3SD = interpolatedSum*maxi
+    
+    def find_cutoff(centile, CumulativeSums, MaxSum, xvals):
+        i=0
+        print('centile; '+str(centile))
+        while CumulativeSums[i]<centile:
+            i+=1
+        if i==0:
+            return 0
+        else:
+            #return xvals[i]
+            thisSum = CumulativeSums[i]
+            previousSum = CumulativeSums[i-1]
+            fractionAbove = (centile-previousSum)/(thisSum-previousSum)
+            thisConc = xvals[i]
+            previousConc = xvals[i-1]
+            interpolatedConc = previousConc + fractionAbove*(thisConc-previousConc)
+            return interpolatedConc
+            '''
+            thisOne = CumulativeSums[i]
+            print('first >centile: '+str(thisOne))
+            previousOne = CumulativeSums[i-1]
+            print('previous <=centile: '+str(previousOne))
+            interpolatedSum = previousOne + ((thisOne-centile)/(thisOne-previousOne))*(thisOne-previousOne) 
+            interpolatedSum = previousOne + ((centile-previousOne)) 
+            print('Interpolated sum: '+str(interpolatedSum))
+            return interpolatedSum*MaxSum
+            '''
+            
+    ConcMinus3SD = find_cutoff(minus3SD,cumulativeFraction, UpperRange, xvals)
     print("minus3SD: " + str(ConcMinus3SD) )
-    i=0
-    while numpySum[i]<minus2SD:
-        i+=1
-    ConcMinus2SD = numpySum[i]*maxi
-    print("minus2SD: " + str(ConcMinus2SD) )
-    i=0
-    while numpySum[i]<minus1SD:
-        i+=1
-    ConcMinus1SD = numpySum[i]*maxi
+    ConcMinus2SD = find_cutoff(minus2SD,cumulativeFraction, UpperRange, xvals)
+    print("minus2SD: " + str(ConcMinus2SD))
+    ConcMinus1SD = find_cutoff(minus1SD, cumulativeFraction, UpperRange, xvals)
     print("minus1SD: " + str(ConcMinus1SD) )
-    while numpySum[i]<plus1SD:
-        i+=1
-    ConcPlus1SD = numpySum[i]*maxi
+    ConcPlus1SD = find_cutoff(plus1SD, cumulativeFraction, UpperRange, xvals)
     print("plus1SD: " + str(ConcPlus1SD) )
-    i=0
-    while numpySum[i]<plus2SD:
-        i+=1
-    ConcPlus2SD = numpySum[i]*maxi
+    ConcPlus2SD = find_cutoff(plus2SD, cumulativeFraction, UpperRange, xvals)
     print("plus2SD: " + str(ConcPlus2SD) )
-    i=0
-    while numpySum[i]<plus3SD:
-        i+=1
-    ConcPlus3SD = numpySum[i]*maxi
+    ConcPlus3SD = find_cutoff(plus3SD, cumulativeFraction, UpperRange, xvals)
     print("plus3SD: " + str(ConcPlus3SD) )
 
     nGraph += 1
     plt.figure(nGraph)
-    plt.title('Cumulative Sum') 
+    include_title = False
+    if (include_title):
+        plt.title('Cumulative Sum') 
     plt.xlabel('Conc') 
     plt.ylabel('Fractional Cumulative Sum') 
 
     #plt.plot(cumulativeSum,marker='x')
     xaxis=midpts[:999]
-    plt.plot(xaxis,numpySum,marker='x', label='Cum Sum')
+    plt.plot(xaxis,numpySum,marker='x', label=thisAnalyte)
     yMinus3SD=[]
     yMinus2SD=[]
     yMinus1SD=[]
@@ -174,10 +234,21 @@ for thisAnalyte in theseAnalytes:
         yPlus1SD.append(plus1SD)
         yPlus2SD.append(plus2SD)
         yPlus3SD.append(plus3SD)
-    plt.plot(xaxis,yMinus3SD,marker='_', label='-3SD='+str(round(ConcMinus3SD,2)))
-    plt.plot(xaxis,yMinus2SD,marker='_', label='-2SD='+str(round(ConcMinus2SD,2)))
-    plt.plot(xaxis,yMinus1SD,marker='_', label='-1SD='+str(round(ConcMinus1SD,2)))
-    plt.plot(xaxis,yPlus1SD,marker='_', label='+1SD='+str(round(ConcPlus1SD,2)))
-    plt.plot(xaxis,yPlus2SD,marker='_', label='+2SD='+str(round(ConcPlus2SD,2)))
-    plt.plot(xaxis,yPlus3SD,marker='_', label='+3SD='+str(round(ConcPlus3SD,2)))
-    plt.legend(loc="lower right")
+    data_in_plot = True
+    if (data_in_plot):
+        plt.plot(xaxis,yMinus3SD,marker='_', label='-3SD='+str(round(ConcMinus3SD,2)))
+        plt.plot(xaxis,yMinus2SD,marker='_', label='-2SD='+str(round(ConcMinus2SD,2)))
+        plt.plot(xaxis,yMinus1SD,marker='_', label='-1SD='+str(round(ConcMinus1SD,2)))
+        plt.plot(xaxis,yPlus1SD,marker='_', label='+1SD='+str(round(ConcPlus1SD,2)))
+        plt.plot(xaxis,yPlus2SD,marker='_', label='+2SD='+str(round(ConcPlus2SD,2)))
+        plt.plot(xaxis,yPlus3SD,marker='_', label='+3SD='+str(round(ConcPlus3SD,2)))
+    else:
+        plt.plot(xaxis,yMinus3SD,marker='_') #, label='-3SD='+str(round(ConcMinus3SD,2)))
+        plt.plot(xaxis,yMinus2SD,marker='_') #, label='-2SD='+str(round(ConcMinus2SD,2)))
+        plt.plot(xaxis,yMinus1SD,marker='_') #, label='-1SD='+str(round(ConcMinus1SD,2)))
+        plt.plot(xaxis,yPlus1SD,marker='_') #, label='+1SD='+str(round(ConcPlus1SD,2)))
+        plt.plot(xaxis,yPlus2SD,marker='_') #, label='+2SD='+str(round(ConcPlus2SD,2)))
+        plt.plot(xaxis,yPlus3SD,marker='_') #, label='+3SD='+str(round(ConcPlus3SD,2)))
+        
+    plt.legend(loc="right")
+
